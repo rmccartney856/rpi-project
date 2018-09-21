@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Home Automation</title>
+		<link rel="shortcut icon" href="/data/favicon.ico" />	
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.js"></script>
+		<script src="https://code.highcharts.com/highcharts.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.13/moment-timezone-with-data-2012-2022.min.js"></script>
+ 
+ 	<style>
+
+	header, footer {
+		font-family: arial, sans-serif;
+		padding: 1em;
+		color: white;
+		background-color: #22c0e2ff;
+		clear: left;
+		text-align: center;
+	}
+
+	img {
+		width: 100%;
+		height: auto;
+	}
+
+	table {
+		font-family: arial, sans-serif;
+		border-collapse: collapse;
+		width: 100%;
+	}
+
+	td, th {
+		border: 1px solid #ffffff;
+		text-align: center;
+		text-color: #1a93aeff;
+		padding: 10px;
+	}
+	
+	input[type=submit] {
+		border-radius: 8px;
+		border: 0;
+		width: 180px;
+		height:40px;
+		font-family: Tahoma;
+		background: #22c0e2ff;
+		/* Old browsers */
+		background: -moz-linear-gradient(top, #22c0e2ff 1%, #ededed 100%);
+		/* FF3.6+ */
+		background: -webkit-gradient(linear, left top, left bottom, color-stop(1%, #22c0e2ff), color-stop(100%, #ededed));
+		/* Chrome,Safari4+ */
+		background: -webkit-linear-gradient(top, #22c0e2ff 1%, #ededed 100%);
+		/* Chrome10+,Safari5.1+ */
+		background: -o-linear-gradient(top, #22c0e2ff 1%, #ededed 100%);
+		/* Opera 11.10+ */
+		background: -ms-linear-gradient(top, #22c0e2ff 1%, #ededed 100%);
+		/* IE10+ */
+		background: linear-gradient(to bottom, #22c0e2ff 1%, #ededed 100%);
+		/* W3C */
+		filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#22c0e2ff', endColorstr='#ededed', GradientType=0);
+		/* IE6-9 */
+	}
+	</style>
+		
+	<?php
+ 
+		$username="root";
+		$password="GaragePi";
+		$database="weatherdata";
+ 
+		mysql_connect(localhost,$username,$password);
+		@mysql_select_db($database) or die ( "Unable to make it happen Cap'n");
+ 
+		$query = "SELECT datetime, temperature FROM garagesensor";
+		$result = mysql_query($query);
+		$dateTemp = array();
+		$index = 0;
+		while ($row = mysql_fetch_array($result, MYSQL_NUM))
+			{
+			$dateTemp[$index]=$row;
+			$index++;
+			}
+ 
+		//echo json_encode($dateTemp, JSON_NUMERIC_CHECK);
+ 
+		mysql_close();
+ 
+	?>
+	</head>
+
+<body style="background-color: white;">
+
+	<header>
+		<h1>Data, Control & Automation System</h1>
+	</header>
+	<p></p>
+
+	<header>
+		<h2>Temperature & Humidity Data</h2>
+	</header>
+
+	<script type="text/javascript">
+		$(function () {
+ 
+		$('#container').highcharts({
+		chart: {
+			type: 'line'
+		},
+		time: {
+			timezone: 'Europe/Dublin'
+		},
+		xAxis: {
+			title: {
+				text: 'Time'
+			},
+			type: 'datetime',
+		},
+		yAxis: {
+			title: {
+				text: 'Temperature'
+			}
+		},
+		series: [{
+			name: 'Temperature (Celcius)',
+			data: <?php echo json_encode($dateTemp, JSON_NUMERIC_CHECK);?>
+			}]
+		});
+	});
+	</script>
+
+	<script src="charts/js/highcharts.js"></script>
+	<script src="charts/js/modules/exporting.js"></script>
+ 
+	<div class="container">
+
+		<div class="row">
+			<div class="col-md-10 col-md-offset-1">
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<div id="container"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+ 
+	<p></p>
+
+	<header>
+		<h2>Settings</h2>
+	</header>
+	
+	<p></p>
+
+	<h3 align="center" >Sensor Data Logging</h3>
+
+	<form align="center" method="post">
+
+		<input type="submit" value="Start Data Logging" name="Start">
+
+		<input type="submit" value="Stop Data Logging" name="Stop">
+
+	</form>
+	
+	<br>
+
+	<h3 align="center" >Power Settings</h3>
+
+	<table align="center" style="width:100%">
+		
+		<tr align="center">
+			<th>Garage Server</th>
+			<th>Low Noise Amplifier</th>
+			<th>Relay 3</th>
+			<th>Relay 4</th>
+		</tr>
+		
+		<tr align="center">
+			<td>
+				<form align="center" method="post">
+
+					<input type="submit" value="On" name="PowerOn">
+					<p></p>
+					<input type="submit" value="Off" name="PowerOff">
+
+				</form>
+			</td>
+
+			<td>
+				<form align="center" method="post">
+
+					<input type="submit" value="On" name="Relay2On">
+					<p></p>
+					<input type="submit" value="Off" name="Relay2Off">
+
+				</form>
+
+			</td>
+
+			<td>
+				<form align="center" method="post">
+
+					<input type="submit" value="On" name="Relay3On">
+					<p></p>
+					<input type="submit" value="Off" name="Relay3Off">
+
+				</form>
+			</td>
+    
+			<td>
+				<form align="center" method="post">
+
+					<input type="submit" value="On" name="Relay4On">
+					<p></p>
+					<input type="submit" value="Off" name="Relay4Off">
+
+				</form>
+			</td>
+		</tr>
+	</table>
+
+	<header>
+		<h2>Bird Camera Live Stream</h2>
+	</header>
+	
+	<p></p>
+
+	<div align ="center">
+		<iframe width="700" height="400" src="https://www.youtube.com/embed/live_stream?channel=UCriCRwOy1V4vkFp2dTTc-4w" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+	</div>
+	
+	<p></p>
+
+	<header>
+		<h2>Status</h2>
+	</header>
+
+	<p></p>
+
+	<div>
+
+		<?php
+			if (isset($_POST['Start']))
+			{
+				echo"Data logging has started. Temperature and Humidity recorded every 10 minutes";
+				system("sudo killall python");
+				exec("sudo /usr/bin/python /var/www/html/scripts/TempRead.py");
+			}	
+	
+			if (isset($_POST['Stop']))
+			{
+				system("sudo killall python");
+				echo"Data logging has now ceased.";
+			}
+
+		?>
+	</div>
+
+	<p></p>
+	<footer>&copy; Copyright 2018 | Ryan McCartney</footer>
+
+</body>
+</html> 
